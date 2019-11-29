@@ -9,28 +9,28 @@ interface Scenario {
 }
 
 const runScenario = (scene: g.Scene, commands: Command[]): void => {
-	for (var i = 0; i < commands.length; i++) {
-		var com = commands[i];
+	for (let i = 0; i < commands.length; i++) {
+		const com = commands[i];
 		switch (com.name) {
 		case "click":
-			var point = { x: com.options.x, y: com.options.y };
-			var pointSource = scene.findPointSourceByPoint(point);
-			var targetPoint = pointSource.point || point;
+			const point = { x: com.options.x, y: com.options.y };
+			const pointSource = scene.findPointSourceByPoint(point);
+			const targetPoint = pointSource.point || point;
 			g.game.raiseEvent(new g.PointDownEvent(0, pointSource.target, targetPoint));
 			g.game.raiseEvent(new g.PointUpEvent(0, pointSource.target, targetPoint, { x: 0, y: 0 }, { x: 0, y: 0 }));
 			break;
 		case "screenshot":
 			if (typeof window !== "undefined") {
-			var canvasElements = window.document.getElementsByTagName("canvas");
-			var imageUrl = canvasElements[0].toDataURL("image/png");
-			var data = imageUrl.match(/^data:image\/png;base64,(.+)$/);
-			if (data.length === 2) {
-				console.log("akashic-contents-reftest:image", com.options.fileName, data[1]); // saveScreenshots側にスクリーンショットの保存を要求
-			}
+				const canvasElements = window.document.getElementsByTagName("canvas");
+				const imageUrl = canvasElements[0].toDataURL("image/png");
+				const data = imageUrl.match(/^data:image\/png;base64,(.+)$/);
+				if (data.length === 2) {
+					console.log("akashic-contents-reftest:image", com.options.fileName, data[1]); // runner側にスクリーンショットの保存を要求
+				}
 			}
 			break;
 		case "finish":
-			console.log("akashic-contents-reftest:finish"); // saveScreenshots側にコンテンツ実行終了を通知
+			console.log("akashic-contents-reftest:finish"); // runner側にコンテンツ実行終了を通知
 			break;
 		}
 	}
@@ -39,11 +39,11 @@ const runScenario = (scene: g.Scene, commands: Command[]): void => {
 export const init = (scene: g.Scene): void => {
 	let scenarioTable: Scenario[] = [];
 	const runScenarioEvent = () => {
-		var target = scenarioTable.filter(function (scenario) {
-		  return scenario.age === g.game.age
+		const target = scenarioTable.filter(scenario => {
+			return scenario.age === g.game.age;
 		});
 		if (target.length > 0) {
-		  runScenario(g.game.scene(), target[0].commands);
+			runScenario(g.game.scene(), target[0].commands);
 		}
 	};
 	scene.message.add((msg) => {
