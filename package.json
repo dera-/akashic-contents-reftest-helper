@@ -1,8 +1,9 @@
 {
   "name": "@dera-/akashic-contents-reftest-helper",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "akashic-contents-reftest-runnerを有効にするためのライブラリ",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
   "scripts": {
     "prepublish": "npm run build",
     "build": "tsc -p .",
