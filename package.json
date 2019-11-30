@@ -12,7 +12,7 @@
     "type": "git",
     "url": "git+https://github.com/dera-/akashic-contents-reftest-helper.git"
   },
-  "author": "",
+  "author": "dera-",
   "license": "MIT",
   "dependencies": {
     "@akashic/akashic-engine": "~2.6.1"
@@ -20,5 +20,9 @@
   "devDependencies": {
     "tslint": "^5.20.1",
     "typescript": "^3.7.2"
+  },
+  "publishConfig": {
+    "access": "public",
+    "@dera-:registry": "https://registry.npmjs.org/"
   }
 }
