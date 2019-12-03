@@ -21,6 +21,7 @@ const runScenario = (scene: g.Scene, commands: Command[]): void => {
 			break;
 		case "screenshot":
 			if (typeof window !== "undefined") {
+				g.game.render(); // 描画がスキップされてしまうことがあるので、スクリーンショット取得前に現フレームでの描画を行う
 				const canvasElements = window.document.getElementsByTagName("canvas");
 				const imageUrl = canvasElements[0].toDataURL("image/png");
 				const data = imageUrl.match(/^data:image\/png;base64,(.+)$/);
