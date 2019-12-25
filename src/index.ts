@@ -1,61 +1,44 @@
-interface Command {
-	name: string;
-	options: any;
+interface MessageEventDataForScenario {
+	type: "scenario";
+	command: {
+		name: "screenshot" | "finish";
+		options?: any;
+	};
 }
 
-interface Scenario {
-	age: number;
-	commands: Command[];
-}
+/** engine-files-reftest側にスクリーンショットの保存を要求するためのメッセージ */
+export const SCREENSHOT_NOTIFICATION_MESSAGE = "engine-files-reftest:image";
+/** engine-files-reftest側にコンテンツ実行終了を要求するためのメッセージ */
+export const END_NOTIFICATION_MESSAGE = "engine-files-reftest:finish";
 
-const runScenario = (scene: g.Scene, commands: Command[]): void => {
-	for (let i = 0; i < commands.length; i++) {
-		const com = commands[i];
-		switch (com.name) {
-		case "click":
-			const point = { x: com.options.x, y: com.options.y };
-			const pointSource = scene.findPointSourceByPoint(point);
-			const targetPoint = pointSource.point || point;
-			g.game.raiseEvent(new g.PointDownEvent(0, pointSource.target, targetPoint));
-			g.game.raiseEvent(new g.PointUpEvent(0, pointSource.target, targetPoint, { x: 0, y: 0 }, { x: 0, y: 0 }));
-			break;
-		case "screenshot":
-			if (typeof window !== "undefined") {
-				g.game.render(); // 描画がスキップされてしまうことがあるので、スクリーンショット取得前に現フレームでの描画を行う
-				const canvasElements = window.document.getElementsByTagName("canvas");
-				const imageUrl = canvasElements[0].toDataURL("image/png");
-				const data = imageUrl.match(/^data:image\/png;base64,(.+)$/);
-				if (data.length === 2) {
-					console.log("akashic-contents-reftest:image", com.options.fileName, data[1]); // runner側にスクリーンショットの保存を要求
-				}
+if (typeof g !== "undefined") {
+	const handleScenario = (msg: g.MessageEvent) => {
+		if (msg.data?.type === "scenario" && msg.data.command) {
+			const eventData = msg.data as MessageEventDataForScenario;
+			switch (eventData.command.name) {
+				case "screenshot":
+					if (typeof window !== "undefined") {
+						g.game.render(); // 描画がスキップされてしまうことがあるので、スクリーンショット取得前に現フレームでの描画を行う
+						const canvasElements = window.document.getElementsByTagName("canvas");
+						const imageUrl = canvasElements[0].toDataURL("image/png");
+						const data = imageUrl.match(/^data:image\/png;base64,(.+)$/);
+						if (data.length === 2) {
+							console.log(SCREENSHOT_NOTIFICATION_MESSAGE, eventData.command.options.fileName, data[1]);
+						}
+					}
+					break;
+				case "finish":
+					console.log(END_NOTIFICATION_MESSAGE);
+					break;
+				default:
+					throw new Error(`${eventData.command.name} is undefined.`);
 			}
-			break;
-		case "finish":
-			console.log("akashic-contents-reftest:finish"); // runner側にコンテンツ実行終了を通知
-			break;
-		}
-	}
-};
-
-export const init = (scene: g.Scene): void => {
-	let scenarioTable: Scenario[] = [];
-	const runScenarioEvent = () => {
-		const target = scenarioTable.filter(scenario => {
-			return scenario.age === g.game.age;
-		});
-		if (target.length > 0) {
-			runScenario(g.game.scene(), target[0].commands);
 		}
 	};
-	scene.message.add((msg) => {
-		if (msg.data && msg.data.type === "scenario" && msg.data.scenarioTable) {
-			scenarioTable = msg.data.scenarioTable;
+
+	g.game._sceneChanged.add((scene: g.Scene) => {
+		if (!scene.message.contains(handleScenario)) {
+			scene.message.add(handleScenario);
 		}
 	});
-	// game単位でのイベント登録ができないので、sceneが変わるたびにイベントを登録する必要がある
-	g.game._sceneChanged.add((s) => {
-		if (s && s.update && !s.update.contains(runScenarioEvent)) {
-			s.update.add(runScenarioEvent);
-		}
-	});
-};
+}
