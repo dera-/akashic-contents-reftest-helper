@@ -6,10 +6,10 @@ interface MessageEventDataForScenario {
 	};
 }
 
-/** engine-files-reftest側にスクリーンショットの保存を要求するためのメッセージ */
-export const SCREENSHOT_NOTIFICATION_MESSAGE = "engine-files-reftest:image";
-/** engine-files-reftest側にコンテンツ実行終了を要求するためのメッセージ */
-export const END_NOTIFICATION_MESSAGE = "engine-files-reftest:finish";
+/** runner側にスクリーンショットの保存を要求するためのメッセージ */
+export const SCREENSHOT_NOTIFICATION_MESSAGE = "akashic-contents-reftest:image";
+/** runner側にコンテンツ実行終了を要求するためのメッセージ */
+export const END_NOTIFICATION_MESSAGE = "akashic-contents-reftest:finish";
 
 if (typeof g !== "undefined") {
 	const handleScenario = (msg: g.MessageEvent) => {
